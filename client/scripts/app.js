@@ -1,14 +1,14 @@
 // YOUR CODE HERE:
 
 var app = {
-  init: function() { 
-    console.log('in init');
-    $('#send .submit').on('submit', function(event) {
+  server: "https://api.parse.com/1/classes/chatterbox",
+  init: function() {
+    $('#send').on('submit', function(event) {
       event.preventDefault(); // prevents page reload
-      console.log('trying to submit');
-      console.log(document.forms);
-      app.handleSubmit('Why so many Mel Brooks quotes?');
+      app.handleSubmit();
     });
+
+    this.fetch();
   },
   send: function(message) {
     $.ajax({
@@ -32,18 +32,24 @@ var app = {
       dataType: "json",
       success: function(data) {
         console.log("chatterbox: Fetched! data: ", data);
+        for(var i = 0; i < 5; i++) {
+          app.addMessage(data.results[i]);
+        }
       }
       // error: function() {}
     });
   },
-  server: "https://api.parse.com/1/classes/chatterbox",
   clearMessages: function() {
     $('#chats').children().remove();
   },
   addMessage: function(message) {
+    console.log(message);
+    message.text = message.text || message.message;
     var userName = $('<span class="username">' + message.username + '</span>');
     var text = $('<span class="message">' + message.text + '</span>');
-    var roomName = $('<span class="roomName">' + message.roomname + '</span>');
+    if(message.roomname) {
+      var roomName = $('<span class="roomName">' + message.roomname + '</span>');
+    }
     var div = $('<div></div>');
     userName.on('click', function() {
       app.addFriend();
@@ -55,10 +61,12 @@ var app = {
     $('#roomSelect').append('<p>' + room + '</p>');
   },
   addFriend: function() {},
-  handleSubmit: function(message) {
-    var text = $('#message').val();
-    console.log(text);
+  handleSubmit: function() {
+    console.log(message);
+    //var text = $('#message').val();
     app.send(text);
-    console.log("This is handleSubmit");
   }
 };
+
+
+app.init();
